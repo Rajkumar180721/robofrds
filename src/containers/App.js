@@ -4,35 +4,33 @@ import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import './App.css';
-import { setSearchField } from '../actions'; 
+import { setSearchField, requestRobots } from '../actions'; 
 
 const mapStateToProps = state => {
+    console.log(state);
     return {
-        searchField: state.searchField
+        searchField: state.searchField,
+        robots: [],
+        isPending: state.requestRobots.isPending
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
-    return {onSearchChange: (event) => dispatch(setSearchField(event.target.value))}
+    return {
+        onSearchChange: (event) => dispatch(setSearchField(event.target.value)),
+        onRequestRobots: () => dispatch(requestRobots())
+    }
 }
 
 class App extends Component {
-    constructor() {
-        super();
-        this.state = {
-            robots: [],
-        }
-    }
-
+    
     componentDidMount() {
-        fetch('https://jsonplaceholder.typicode.com/users')
-        .then( response => response.json())
-        .then( users => this.setState({robots:users}));
+        this.props.onRequestRobots();
     }
 
     render() {
-        const { searchField, onSearchChange } = this.props;
-        const filteredRobots = this.state.robots.filter(robot =>{
+        const { robots, searchField, onSearchChange, isPending } = this.props;
+        const filteredRobots = robots.filter(robot =>{
             return robot.name.toLowerCase().includes(searchField.toLowerCase());
         })
         if(this.state.robots.length === 0) {
